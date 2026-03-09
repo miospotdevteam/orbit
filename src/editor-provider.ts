@@ -5,7 +5,6 @@ import { getOrCreateCommentSidecar, addThread, addReply, updateThreadStatus, per
 import { transitionReviewState, getReviewStateSummary } from './node/artifact-review-service';
 import { executeRegenerationCycle } from './node/artifact-resolution-service';
 import { StubAgentBridge } from './node/artifact-agent-bridge';
-import { runPostApproveAction } from './node/post-approve-action';
 import { getBlockIds } from './common/block-parser';
 import { HostToWebviewMessage, WebviewToHostMessage } from './webview/types';
 
@@ -128,10 +127,15 @@ export class ArtifactReviewEditorProvider implements vscode.CustomReadonlyEditor
                     break;
                 }
                 case 'approve': {
-                    const inReview = await transitionReviewState(sourcePath, 'in_review');
-                    if (!inReview.success) {
-                        vscode.window.showErrorMessage(inReview.error ?? 'Failed to start review.');
-                        return;
+                    // Ensure we're in in_review first (may already be if agent called orbit_await_review)
+                    const bundle = await loadArtifactBundle(sourcePath);
+                    const currentState = bundle.review?.reviewState ?? 'draft';
+                    if (currentState === 'draft' || currentState === 'stale') {
+                        const inReview = await transitionReviewState(sourcePath, 'in_review');
+                        if (!inReview.success) {
+                            vscode.window.showErrorMessage(inReview.error ?? 'Failed to start review.');
+                            return;
+                        }
                     }
 
                     const approved = await transitionReviewState(sourcePath, 'approved');
@@ -139,12 +143,14 @@ export class ArtifactReviewEditorProvider implements vscode.CustomReadonlyEditor
                         vscode.window.showErrorMessage(approved.error ?? 'Failed to approve artifact.');
                         return;
                     }
-
-                    await runPostApproveAction(sourcePath);
                     break;
                 }
                 case 'requestChanges': {
-                    await transitionReviewState(sourcePath, 'in_review');
+                    const reqBundle = await loadArtifactBundle(sourcePath);
+                    const reqState = reqBundle.review?.reviewState ?? 'draft';
+                    if (reqState !== 'in_review') {
+                        await transitionReviewState(sourcePath, 'in_review');
+                    }
                     await transitionReviewState(sourcePath, 'changes_requested');
                     break;
                 }

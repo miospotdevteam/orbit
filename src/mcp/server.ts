@@ -15,6 +15,7 @@ import {
     transitionReviewState,
     getReviewStateSummary,
 } from '../node/artifact-review-service';
+import { awaitReviewDecision } from '../node/await-review';
 import { parseArtifact, getBlockIds } from '../common/block-parser';
 
 const server = new McpServer({
@@ -227,6 +228,69 @@ server.registerTool(
             return { content: [{ type: 'text' as const, text: result.error ?? 'Failed to request changes.' }], isError: true };
         }
         return { content: [{ type: 'text' as const, text: `Changes requested. State: ${result.metadata.reviewState}` }] };
+    },
+);
+
+server.registerTool(
+    'orbit_await_review',
+    {
+        description:
+            'Submit an artifact for user review and block until the user responds. ' +
+            'Generates the resolved artifact, opens it in VS Code, transitions to "in_review", ' +
+            'then polls until the user clicks "Proceed" (approved) or "Review" (changes_requested). ' +
+            'Returns the decision and any open comment threads. Use this instead of orbit_generate_resolved ' +
+            'when you want to wait for the user\'s review inline without spawning a new terminal.',
+        inputSchema: {
+            sourcePath: z.string().describe('Absolute path to the source .md file'),
+            timeoutMs: z.number().optional().describe('Max wait time in ms (default: 1800000 = 30 min)'),
+            pollIntervalMs: z.number().optional().describe('Poll interval in ms (default: 2000)'),
+        },
+    },
+    async ({ sourcePath, timeoutMs, pollIntervalMs }) => {
+        // 1. Generate the resolved artifact
+        await generateResolvedArtifact(sourcePath);
+        const paths = artifactPaths(sourcePath);
+
+        // 2. Auto-open in VS Code (best-effort)
+        execFile('code', [paths.resolved], () => {});
+
+        // 3. Transition to in_review
+        const t1 = await transitionReviewState(sourcePath, 'in_review');
+        if (!t1.success) {
+            return {
+                content: [{ type: 'text' as const, text: `Failed to start review: ${t1.error}` }],
+                isError: true,
+            };
+        }
+
+        // 4. Block until user decides
+        const decision = await awaitReviewDecision(sourcePath, { timeoutMs, pollIntervalMs });
+
+        // 5. Return the result
+        const result = {
+            status: decision.status,
+            threads: decision.threads.map(t => ({
+                id: t.id,
+                blockId: t.blockId,
+                comments: t.comments.map(c => ({ author: c.author, body: c.body })),
+            })),
+        };
+
+        if (decision.status === 'timeout') {
+            return {
+                content: [{
+                    type: 'text' as const,
+                    text: JSON.stringify(
+                        { ...result, message: 'Review timed out. The artifact is still open for review.' },
+                        null, 2,
+                    ),
+                }],
+            };
+        }
+
+        return {
+            content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],
+        };
     },
 );
 
