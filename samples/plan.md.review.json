@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "sourcePath": "/Users/robertobortolaso/Projects/orbit/samples/plan.md",
+  "artifactPath": "/Users/robertobortolaso/Projects/orbit/samples/plan.md.resolved",
+  "sourceHash": "e5598b6cbe8084cc4c0f6debb69368ebfc54b8521d9a3a7a05f88537bb6681dd",
+  "artifactHash": "5771125b20cf18a4ae9a3018426b72dfa8eaef15e3468dfd83998cc81a285342",
+  "artifactVersion": 1,
+  "reviewState": "in_review",
+  "generatorVersion": "orbit-plan-resolver@0.1.0",
+  "generatedAt": "2026-03-08T03:28:58.857Z",
+  "approvedAt": null
+}

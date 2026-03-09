@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "artifactPath": "/Users/robertobortolaso/Projects/orbit/samples/plan.md.resolved",
+  "sourcePath": "/Users/robertobortolaso/Projects/orbit/samples/plan.md",
+  "artifactVersion": 1,
+  "threads": [
+    {
+      "id": "thread_1772940538859_1",
+      "blockId": "database-schema",
+      "status": "open",
+      "createdAt": "2026-03-08T03:28:58.859Z",
+      "updatedAt": "2026-03-08T03:28:58.859Z",
+      "comments": [
+        {
+          "id": "comment_1772940538859_2",
+          "author": "user",
+          "body": "Should we add an index on the email column for faster lookups?",
+          "createdAt": "2026-03-08T03:28:58.859Z"
+        },
+        {
+          "id": "comment_1772940538859_3",
+          "author": "agent",
+          "body": "Yes — email lookups happen on every login. Added to acceptance criteria.",
+          "createdAt": "2026-03-08T03:28:58.859Z"
+        }
+      ]
+    },
+    {
+      "id": "thread_1772940538859_4",
+      "blockId": "authentication-api",
+      "status": "open",
+      "createdAt": "2026-03-08T03:28:58.859Z",
+      "updatedAt": "2026-03-08T03:28:58.859Z",
+      "comments": [
+        {
+          "id": "comment_1772940538859_5",
+          "author": "user",
+          "body": "We need rate limiting on the login endpoint to prevent brute force.",
+          "createdAt": "2026-03-08T03:28:58.859Z"
+        }
+      ]
+    },
+    {
+      "id": "thread_1772940538859_6",
+      "blockId": "oauth2-integration",
+      "status": "open",
+      "createdAt": "2026-03-08T03:28:58.859Z",
+      "updatedAt": "2026-03-08T03:28:58.859Z",
+      "comments": [
+        {
+          "id": "comment_1772940538859_7",
+          "author": "user",
+          "body": "Consider adding Apple Sign In as a third provider.",
+          "createdAt": "2026-03-08T03:28:58.859Z"
+        }
+      ]
+    }
+  ]
+}

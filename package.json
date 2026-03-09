@@ -1,0 +1,92 @@
+{
+  "name": "orbit-artifact-review",
+  "displayName": "Orbit Artifact Review",
+  "version": "0.1.0",
+  "description": "Antigravity-style artifact review with block-level comments and agent feedback loop",
+  "publisher": "orbit",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "bin": {
+    "orbit-mcp": "out/mcp-server.js"
+  },
+  "activationEvents": [],
+  "contributes": {
+    "customEditors": [
+      {
+        "viewType": "artifact-review-editor",
+        "displayName": "Artifact Review",
+        "selector": [
+          {
+            "filenamePattern": "*.md.resolved"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "commands": [
+      {
+        "command": "artifact-review.addComment",
+        "title": "Artifact Review: Add Comment"
+      },
+      {
+        "command": "artifact-review.approve",
+        "title": "Artifact Review: Approve Artifact"
+      },
+      {
+        "command": "artifact-review.requestChanges",
+        "title": "Artifact Review: Request Changes"
+      },
+      {
+        "command": "artifact-review.regenerate",
+        "title": "Artifact Review: Regenerate Resolved Artifact"
+      },
+      {
+        "command": "artifact-review.markResolved",
+        "title": "Artifact Review: Mark Thread Resolved"
+      },
+      {
+        "command": "artifact-review.openSource",
+        "title": "Artifact Review: Open Source Plan"
+      },
+      {
+        "command": "artifact-review.openSidecar",
+        "title": "Artifact Review: Open Sidecar JSON"
+      }
+    ]
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "marked": "^17.0.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/marked": "^5.0.2",
+    "@types/node": "^20.19.37",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.24.0",
+    "rimraf": "^5.0.0",
+    "typescript": "~5.4.5",
+    "vitest": "^2.0.0"
+  },
+  "scripts": {
+    "clean": "rimraf out lib",
+    "build": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "package": "npm run build && npx @vscode/vsce package",
+    "prepackage": "npm run build",
+    "prepublishOnly": "npm run build"
+  }
+}

@@ -1,0 +1,67 @@
+---
+source: /Users/robertobortolaso/Projects/orbit/samples/plan.md
+sourceHash: e5598b6cbe8084cc4c0f6debb69368ebfc54b8521d9a3a7a05f88537bb6681dd
+artifactVersion: 1
+generator: orbit-plan-resolver@0.1.0
+generatedAt: 2026-03-08T03:28:58.857Z
+---
+
+<!-- block:id=sample-feature-plan type=section -->
+# Sample Feature Plan
+
+<!-- block:id=context type=section -->
+## Context
+
+This plan implements a user authentication system for the web application.
+The system should support email/password login and OAuth2 providers.
+
+<!-- block:id=step-1-database-schema type=step -->
+## Step 1: Database Schema
+
+Create the users table with email, password hash, and OAuth fields.
+
+<!-- block:id=step-1-acceptance type=list -->
+### Step 1 Acceptance
+
+- Users table created with proper indexes
+- Migration runs cleanly
+- Rollback migration works
+
+<!-- block:id=step-2-authentication-api type=step -->
+## Step 2: Authentication API
+
+Implement login, register, and token refresh endpoints.
+
+<!-- block:id=step-2-acceptance type=list -->
+### Step 2 Acceptance
+
+- POST /auth/register creates a user
+- POST /auth/login returns a JWT
+- POST /auth/refresh returns a new JWT
+- Invalid credentials return 401
+
+<!-- block:id=step-3-oauth2-integration type=step -->
+## Step 3: OAuth2 Integration
+
+Add Google and GitHub OAuth2 providers.
+
+<!-- block:id=step-3-acceptance type=list -->
+### Step 3 Acceptance
+
+- Google OAuth flow works end to end
+- GitHub OAuth flow works end to end
+- OAuth users are linked to existing accounts by email
+
+<!-- block:id=verification type=verification -->
+## Verification
+
+Run the full test suite and verify:
+- All auth endpoints respond correctly
+- JWT tokens are valid and expire properly
+- OAuth redirects work in staging environment
+
+<!-- block:id=notes type=note -->
+## Notes
+
+> This plan targets v2.0 of the auth system. v1.0 used session cookies.
+> Migration path from v1.0 is tracked in a separate plan.
