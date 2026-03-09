@@ -5,6 +5,7 @@ import { getOrCreateCommentSidecar, addThread, addReply, updateThreadStatus, per
 import { transitionReviewState, getReviewStateSummary } from './node/artifact-review-service';
 import { executeRegenerationCycle } from './node/artifact-resolution-service';
 import { StubAgentBridge } from './node/artifact-agent-bridge';
+import { runPostApproveAction } from './node/post-approve-action';
 import { getBlockIds } from './common/block-parser';
 import { HostToWebviewMessage, WebviewToHostMessage } from './webview/types';
 
@@ -127,8 +128,19 @@ export class ArtifactReviewEditorProvider implements vscode.CustomReadonlyEditor
                     break;
                 }
                 case 'approve': {
-                    await transitionReviewState(sourcePath, 'in_review');
-                    await transitionReviewState(sourcePath, 'approved');
+                    const inReview = await transitionReviewState(sourcePath, 'in_review');
+                    if (!inReview.success) {
+                        vscode.window.showErrorMessage(inReview.error ?? 'Failed to start review.');
+                        return;
+                    }
+
+                    const approved = await transitionReviewState(sourcePath, 'approved');
+                    if (!approved.success) {
+                        vscode.window.showErrorMessage(approved.error ?? 'Failed to approve artifact.');
+                        return;
+                    }
+
+                    await runPostApproveAction(sourcePath);
                     break;
                 }
                 case 'requestChanges': {

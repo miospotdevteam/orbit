@@ -58,7 +58,53 @@
         "command": "artifact-review.openSidecar",
         "title": "Artifact Review: Open Sidecar JSON"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Orbit Artifact Review",
+      "type": "object",
+      "properties": {
+        "artifactReview.postApprove.action": {
+          "type": "string",
+          "enum": [
+            "ask",
+            "none",
+            "codexTerminal",
+            "claudeTerminal",
+            "vscodeCommand"
+          ],
+          "default": "ask",
+          "description": "What Orbit should do after a successful Proceed approval. 'ask' prompts for the target agent at approval time, while terminal modes launch Codex or Claude automatically."
+        },
+        "artifactReview.postApprove.codexCommand": {
+          "type": "string",
+          "default": "codex",
+          "description": "CLI command used when post-approve action is 'codexTerminal'."
+        },
+        "artifactReview.postApprove.claudeCommand": {
+          "type": "string",
+          "default": "claude",
+          "description": "CLI command used when post-approve action is 'claudeTerminal'."
+        },
+        "artifactReview.postApprove.resumeLatestSession": {
+          "type": "boolean",
+          "default": true,
+          "description": "When enabled, terminal agent modes try to resume the latest local session first and fall back to starting a new one."
+        },
+        "artifactReview.postApprove.promptTemplate": {
+          "type": "string",
+          "default": "Continue implementing the approved plan at ${sourcePath}. Read the plan, inspect the repository, and proceed automatically.",
+          "description": "Prompt template used for the automatic post-approve follow-up. Available variables: ${sourcePath}, ${resolvedPath}, ${sourceDir}, ${workingDirectory}."
+        },
+        "artifactReview.postApprove.vscodeCommand": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null,
+          "description": "VS Code command to run when post-approve action is 'vscodeCommand'. Orbit passes a single context object containing sourcePath, resolvedPath, sourceDir, workingDirectory, and prompt."
+        }
+      }
+    }
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
