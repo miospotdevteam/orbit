@@ -254,13 +254,17 @@ server.registerTool(
         // 2. Auto-open in VS Code (best-effort)
         execFile('code', [paths.resolved], () => {});
 
-        // 3. Transition to in_review
-        const t1 = await transitionReviewState(sourcePath, 'in_review');
-        if (!t1.success) {
-            return {
-                content: [{ type: 'text' as const, text: `Failed to start review: ${t1.error}` }],
-                isError: true,
-            };
+        // 3. Transition to in_review (skip if already there)
+        const bundle = await loadArtifactBundle(sourcePath);
+        const currentState = bundle.review?.reviewState ?? 'draft';
+        if (currentState !== 'in_review') {
+            const t1 = await transitionReviewState(sourcePath, 'in_review');
+            if (!t1.success) {
+                return {
+                    content: [{ type: 'text' as const, text: `Failed to start review: ${t1.error}` }],
+                    isError: true,
+                };
+            }
         }
 
         // 4. Block until user decides
